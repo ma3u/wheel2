@@ -23,8 +23,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inject Firebase config
-        run: echo "${{ secrets.FIREBASE_CONFIG_B64 }}" | base64 -d > firebase-config.js
+      - name: Inject Firebase config into index.html
+        env:
+          FIREBASE_CONFIG_B64: ${{ secrets.FIREBASE_CONFIG_B64 }}
+        run: |
+          echo "$FIREBASE_CONFIG_B64" | base64 -d > firebase-config.js
+          python3 -c "
+          with open('firebase-config.js') as f:
+              config = f.read()
+          with open('index.html') as f:
+              html = f.read()
+          marker = '// __FIREBASE_CONFIG_INJECT__ (replaced by CI/CD pipeline)'
+          html = html.replace(marker, config)
+          with open('index.html', 'w') as f:
+              f.write(html)
+          print('Config injected successfully')
+          "
+
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

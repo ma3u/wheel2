@@ -780,8 +780,11 @@
         </div>
     </div>
 
-    <!-- Firebase Config (loaded from external file, NOT in git repo) -->
-    <script src="firebase-config.js"></script>
+    <!-- Firebase Config: injected at build time by GitHub Actions, or loaded from local file -->
+    <script>
+        // __FIREBASE_CONFIG_INJECT__ (replaced by CI/CD pipeline)
+    </script>
+    <script src="firebase-config.js" onerror="window.__fbConfigFallbackFailed=true"></script>
 
     <script type="module">
     // ============================================================
@@ -800,7 +803,7 @@
     // --- Check Firebase config ---
     if (!window.FIREBASE_CONFIG) {
         document.getElementById('configError').classList.remove('hidden');
-        throw new Error('Firebase config not found. Create firebase-config.js');
+        throw new Error('Firebase config not found. Ensure firebase-config.js exists locally or CI injects config.');
     }
 
     // --- Initialize Firebase ---
